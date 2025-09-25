@@ -42,6 +42,12 @@
             font-size: 14px;
             margin-bottom: 5px;
         }
+        .game-version {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
         .game-button {
             background-color: #007AFF;
             color: white;
@@ -207,9 +213,16 @@
                 
                 var robloxUrl = 'robloxmobile://Game/PlaceLauncher.ashx?request=RequestGame&placeId=' + (game.placeId || game.id);
                 
+                // Формируем информацию о версии
+                var versionInfo = '';
+                if (game.version) {
+                    versionInfo = '<div class="game-version">Версия: ' + game.version + '</div>';
+                }
+                
                 gameElement.innerHTML = 
                     '<div class="game-id">ID: ' + (game.id || 'N/A') + '</div>' +
                     '<div class="game-title">Название: ' + (game.title || 'Не указано') + '</div>' +
+                    versionInfo +
                     (game.description ? '<div style="color: #666; font-size: 12px; margin: 5px 0;">' + game.description + '</div>' : '') +
                     '<div style="text-align: center; margin-top: 8px;">' +
                     '<a href="' + robloxUrl + '" class="game-button" onclick="handleGameLaunch(event, ' + (game.placeId || game.id) + ')">Запустить игру</a>' +
