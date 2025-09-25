@@ -3,428 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск игр Roblox</title>
+    <title>Список игр Roblox</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
             background-color: #f5f5f5;
+            font-size: 14px;
         }
         .container {
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         h1 {
             color: #333;
             text-align: center;
-            margin-bottom: 20px;
-        }
-        .search-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .search-input {
-            padding: 10px;
-            width: 200px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-            font-size: 16px;
-        }
-        .search-button {
-            background-color: #00a2ff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-        }
-        .search-button:hover {
-            background-color: #0078cc;
-        }
-        .custom-search {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border: 1px solid #ffeaa7;
+            margin-bottom: 15px;
+            font-size: 20px;
         }
         .game-item {
             border: 1px solid #ddd;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 4px;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 3px;
             background-color: #fafafa;
         }
         .game-id {
             font-weight: bold;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .game-title {
             color: #333;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-        .game-description {
-            color: #666;
-            font-size: 0.9em;
-            margin: 10px 0;
-            line-height: 1.4;
+            font-size: 14px;
+            margin-bottom: 5px;
         }
         .game-button {
-            background-color: #00a2ff;
+            background-color: #007AFF;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 8px 15px;
+            border-radius: 3px;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin: 5px;
-            font-weight: bold;
-        }
-        .game-button:hover {
-            background-color: #0078cc;
-        }
-        .custom-game-button {
-            background-color: #28a745;
-        }
-        .custom-game-button:hover {
-            background-color: #218838;
+            margin: 3px;
+            font-size: 12px;
         }
         .loading {
             text-align: center;
             color: #666;
             font-style: italic;
-            padding: 20px;
+            padding: 15px;
         }
         .error {
-            color: #d32f2f;
-            background-color: #ffebee;
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid #f44336;
-            margin: 10px 0;
-        }
-        .success {
-            color: #2e7d32;
-            background-color: #e8f5e9;
+            color: #D70000;
+            background-color: #FFEBEE;
             padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #4caf50;
-            margin: 10px 0;
-        }
-        .section-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin: 20px 0 10px 0;
-            padding-bottom: 5px;
-            border-bottom: 2px solid #00a2ff;
+            border-radius: 3px;
+            border: 1px solid #F44336;
+            margin: 8px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Поиск игр Roblox</h1>
-        
-        <div class="search-box">
-            <input type="number" id="gameIdInput" class="search-input" placeholder="Введите ID игры">
-            <button class="search-button" onclick="searchGameById()">🔍 Найти игру</button>
-            <button class="search-button" onclick="loadPopularGames()">🎯 Популярные игры</button>
-        </div>
-
-        <div class="custom-search">
-            <h3>🔎 Кастомный поиск по Universe ID</h3>
-            <input type="number" id="customUniverseId" class="search-input" placeholder="Введите Universe ID">
-            <button class="search-button" onclick="searchCustomGame()">🚀 Найти через API</button>
-            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                Использует API: https://games.synt2x.xyz/v1/games/?universeIds=ID
-            </p>
-        </div>
-        
+        <h1>Список игр Roblox</h1>
         <div id="status"></div>
         <div id="games-list">
-            <div class="loading">Введите ID игры или нажмите "Популярные игры"</div>
+            <div class="loading">Загрузка данных...</div>
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+            <button onclick="loadGames()" style="padding: 8px 15px; font-size: 14px;">Обновить список</button>
         </div>
     </div>
 
     <script>
-        function updateStatus(message, type = 'info') {
-            const statusDiv = document.getElementById('status');
-            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'loading';
-            statusDiv.innerHTML = `<div class="${className}">${message}</div>`;
-        }
-
-        async function searchGameById() {
-            const gameId = document.getElementById('gameIdInput').value.trim();
-            
-            if (!gameId) {
-                updateStatus('❌ Введите ID игры', 'error');
-                return;
+        // Простая функция для обновления статуса
+        function updateStatus(message, isError) {
+            var statusDiv = document.getElementById('status');
+            if (isError) {
+                statusDiv.innerHTML = '<div class="error">' + message + '</div>';
+            } else {
+                statusDiv.innerHTML = '<div style="text-align: center; color: #666; padding: 10px;">' + message + '</div>';
             }
-
-            updateStatus('🔍 Ищем игру...');
-            await searchGame(gameId);
         }
 
-        async function searchCustomGame() {
-            const universeId = document.getElementById('customUniverseId').value.trim();
+        // Функция для исправления JSON (совместимая с iOS 8)
+        function fixJSON(text) {
+            // Простые замены для исправления распространенных ошибок
+            var fixed = text
+                .replace(/,\s*(\}|\])/g, '$1') // Убираем запятые перед } и ]
+                .replace(/'/g, '"'); // Заменяем одинарные кавычки на двойные
             
-            if (!universeId) {
-                updateStatus('❌ Введите Universe ID', 'error');
-                return;
-            }
-
-            updateStatus('🔍 Ищем игру через кастомное API...');
-            await searchGameViaCustomAPI(universeId);
+            return fixed;
         }
 
-        async function searchGameViaCustomAPI(universeId) {
-            const gamesList = document.getElementById('games-list');
-            gamesList.innerHTML = '<div class="loading">Поиск через кастомное API...</div>';
-
-            try {
-                const proxyUrl = 'https://api.allorigins.win/raw?url=' + 
-                    encodeURIComponent(`https://games.synt2x.xyz/v1/games/?universeIds=${universeId}`);
-                
-                const response = await fetch(proxyUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Ошибка HTTP: ${response.status}`);
+        // Основная функция загрузки игр
+        function loadGames() {
+            var gamesList = document.getElementById('games-list');
+            gamesList.innerHTML = '<div class="loading">Загрузка данных...</div>';
+            updateStatus('Подключаемся к серверу...', false);
+            
+            // Используем XMLHttpRequest вместо fetch для совместимости
+            var xhr = new XMLHttpRequest();
+            var url = 'https://api.allorigins.win/raw?url=' + 
+                     encodeURIComponent('https://games.synt2x.xyz/v1/games/');
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) { // Запрос завершен
+                    if (xhr.status === 200) {
+                        // Успешный запрос
+                        processGamesData(xhr.responseText, gamesList);
+                    } else {
+                        // Ошибка запроса
+                        updateStatus('Ошибка загрузки: ' + xhr.status, true);
+                        gamesList.innerHTML = '<div class="error">Не удалось загрузить данные</div>';
+                    }
                 }
+            };
+            
+            xhr.onerror = function() {
+                updateStatus('Ошибка сети', true);
+                gamesList.innerHTML = '<div class="error">Проблемы с подключением к интернету</div>';
+            };
+            
+            xhr.open('GET', url, true);
+            xhr.send();
+        }
+
+        // Функция обработки данных
+        function processGamesData(text, gamesList) {
+            try {
+                var games = [];
+                var data;
                 
-                const text = await response.text();
-                console.log('Ответ от кастомного API:', text);
-                
-                let data;
+                // Пытаемся распарсить JSON
                 try {
                     data = JSON.parse(text);
                 } catch (e) {
-                    // Пытаемся исправить JSON
-                    const fixedText = text.replace(/,\s*([}\]])/g, '$1');
-                    data = JSON.parse(fixedText);
-                }
-                
-                if (data && data.length > 0) {
-                    const game = data[0];
-                    const gameInfo = {
-                        id: game.id || universeId,
-                        title: game.title || `Игра #${universeId}`,
-                        description: game.description || "Описание отсутствует",
-                        placeId: game.placeId || game.id || universeId,
-                        universeId: parseInt(universeId),
-                        isCustomSearch: true
-                    };
-                    
-                    displayGames([gameInfo], gamesList, true);
-                    updateStatus(`✅ Найдена игра через кастомное API: ${gameInfo.title}`, 'success');
-                } else {
-                    throw new Error('Игра не найдена через кастомное API');
-                }
-
-            } catch (error) {
-                console.error('Ошибка кастомного поиска:', error);
-                updateStatus('❌ Ошибка кастомного поиска: ' + error.message, 'error');
-                gamesList.innerHTML = `
-                    <div class="error">
-                        Не удалось найти игру через кастомное API. Попробуйте другой Universe ID.
-                        <br><br>Ошибка: ${error.message}
-                    </div>
-                `;
-            }
-        }
-
-        async function searchGame(gameId) {
-            const gamesList = document.getElementById('games-list');
-            gamesList.innerHTML = '<div class="loading">Поиск игры...</div>';
-
-            try {
-                // Сначала пробуем кастомное API
-                const customGameInfo = await searchGameViaCustomAPI(gameId);
-                if (customGameInfo) {
-                    return;
-                }
-            } catch (error) {
-                console.log('Кастомное API не сработало, пробуем официальное...');
-            }
-
-            try {
-                // Метод через официальный API Roblox
-                const gameInfo = await searchGameByPlaceId(gameId);
-                
-                if (gameInfo) {
-                    displayGames([gameInfo], gamesList);
-                    updateStatus(`✅ Найдена игра: ${gameInfo.title}`, 'success');
-                } else {
-                    // Базовая информация если API не сработали
-                    const basicGameInfo = {
-                        id: parseInt(gameId),
-                        title: `Игра #${gameId}`,
-                        description: "Информация загружается...",
-                        placeId: parseInt(gameId)
-                    };
-                    
-                    displayGames([basicGameInfo], gamesList);
-                    updateStatus('⚠️ Используем базовую информацию. Запуск игры доступен.', 'success');
-                }
-
-            } catch (error) {
-                updateStatus('❌ Ошибка поиска: ' + error.message, 'error');
-                gamesList.innerHTML = '<div class="error">Не удалось найти игру</div>';
-            }
-        }
-
-        async function searchGameByPlaceId(placeId) {
-            try {
-                // Сначала получаем universeId по placeId
-                const universeResponse = await fetch(
-                    `https://api.roblox.com/universes/get-universe-containing-place?placeid=${placeId}`
-                );
-                
-                if (!universeResponse.ok) throw new Error('Universe not found');
-                
-                const universeData = await universeResponse.json();
-                const universeId = universeData.UniverseId;
-                
-                // Затем получаем информацию об игре по universeId
-                const gameResponse = await fetch(
-                    `https://games.roblox.com/v1/games?universeIds=${universeId}`
-                );
-                
-                if (!gameResponse.ok) throw new Error('Game not found');
-                
-                const gameData = await gameResponse.json();
-                if (gameData.data && gameData.data.length > 0) {
-                    return {
-                        id: parseInt(placeId),
-                        title: gameData.data[0].name,
-                        description: gameData.data[0].description || "Описание отсутствует",
-                        placeId: parseInt(placeId),
-                        universeId: universeId
-                    };
-                }
-            } catch (error) {
-                console.log('Официальный API не сработал:', error.message);
-                return null;
-            }
-        }
-
-        function loadPopularGames() {
-            const popularGames = [
-                {
-                    id: 1382,
-                    title: "Natural Disaster Survival",
-                    description: "Выживайте в природных катастрофах! Сервер переполнен случайными событиями - торнадо, землетрясения, цунами и многое другое. Ваша цель - выжить любой ценой!",
-                    placeId: 1382,
-                    universeId: 599
-                },
-                {
-                    id: 2535,
-                    title: "Jailbreak",
-                    description: "Будьте преступником или полицейским в этом захватывающем симуляторе тюрьмы. Совершайте побеги, участвуйте в погонях и создавайте свою криминальную империю!",
-                    placeId: 2535,
-                    universeId: 1377
-                },
-                {
-                    id: 142823,
-                    title: "Adopt Me!",
-                    description: "Усыновляйте и воспитывайте питомцев в этой семейной ролевой игре. Собирайте редких животных, обустраивайте дом и играйте с друзьями!",
-                    placeId: 142823,
-                    universeId: 1488
-                }
-            ];
-
-            const gamesList = document.getElementById('games-list');
-            displayGames(popularGames, gamesList);
-            updateStatus(`✅ Загружено ${popularGames.length} популярных игр`, 'success');
-        }
-
-        function displayGames(games, gamesList, isCustomSearch = false) {
-            gamesList.innerHTML = '';
-            
-            if (isCustomSearch) {
-                const sectionTitle = document.createElement('div');
-                sectionTitle.className = 'section-title';
-                sectionTitle.textContent = '🎯 Результат кастомного поиска';
-                gamesList.appendChild(sectionTitle);
-            }
-            
-            games.forEach(game => {
-                const gameElement = document.createElement('div');
-                gameElement.className = 'game-item';
-                
-                if (isCustomSearch) {
-                    gameElement.style.border = '2px solid #28a745';
-                    gameElement.style.background = '#f8fff9';
-                }
-                
-                const robloxUrl = `robloxmobile://Game/PlaceLauncher.ashx?request=RequestGame&placeId=${game.placeId || game.id}`;
-                const webUrl = `https://www.roblox.com/games/${game.placeId || game.id}/`;
-                
-                gameElement.innerHTML = `
-                    <div class="game-info">
-                        <div class="game-id">🎯 ID: ${game.id}</div>
-                        ${game.universeId ? `<div class="game-id">🌌 Universe ID: ${game.universeId}</div>` : ''}
-                        <div class="game-title">🎮 ${game.title}</div>
-                        <div class="game-description">📝 ${game.description}</div>
-                    </div>
-                    <div style="text-align: center; margin-top: 10px;">
-                        <a href="${robloxUrl}" class="game-button ${isCustomSearch ? 'custom-game-button' : ''}" 
-                           onclick="handleGameLaunch(event, ${game.placeId || game.id})">
-                            🚀 Запустить в приложении
-                        </a>
-                        <a href="${webUrl}" class="game-button" target="_blank" style="background-color: #6c757d;">
-                            🌐 Открыть в браузере
-                        </a>
-                    </div>
-                `;
-                gamesList.appendChild(gameElement);
-            });
-        }
-
-        function handleGameLaunch(event, gameId) {
-            event.preventDefault();
-            const robloxUrl = `robloxmobile://Game/PlaceLauncher.ashx?request=RequestGame&placeId=${gameId}`;
-            
-            console.log(`Запуск игры ID: ${gameId}`);
-            window.location.href = robloxUrl;
-            
-            // Fallback на браузер
-            setTimeout(() => {
-                if (!document.hidden) {
-                    const webUrl = `https://www.roblox.com/games/${gameId}/`;
-                    if (confirm('Приложение Roblox не найдено. Открыть в браузере?')) {
-                        window.open(webUrl, '_blank');
+                    // Если не получается, пытаемся исправить JSON
+                    try {
+                        var fixedText = fixJSON(text);
+                        data = JSON.parse(fixedText);
+                    } catch (e2) {
+                        throw new Error('Не удалось обработать данные: ' + e2.message);
                     }
                 }
-            }, 1000);
+                
+                // Извлекаем игры из данных
+                if (Array.isArray(data)) {
+                    games = data;
+                } else if (data && typeof data === 'object') {
+                    // Пробуем разные структуры данных
+                    if (data.games && Array.isArray(data.games)) {
+                        games = data.games;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        games = data.data;
+                    } else {
+                        // Если это объект, преобразуем в массив
+                        games = [];
+                        for (var key in data) {
+                            if (data.hasOwnProperty(key) && data[key] && data[key].id) {
+                                games.push(data[key]);
+                            }
+                        }
+                    }
+                }
+                
+                if (games.length === 0) {
+                    throw new Error('Не найдено игр в данных');
+                }
+                
+                // Отображаем игры
+                displayGames(games, gamesList);
+                updateStatus('Загружено игр: ' + games.length, false);
+                
+            } catch (error) {
+                updateStatus('Ошибка: ' + error.message, true);
+                gamesList.innerHTML = '<div class="error">' + error.message + '</div>';
+            }
         }
 
-        // Поиск при нажатии Enter
-        document.getElementById('gameIdInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchGameById();
+        // Функция отображения игр
+        function displayGames(games, gamesList) {
+            gamesList.innerHTML = '';
+            
+            // Сортируем игры по ID
+            games.sort(function(a, b) {
+                return (a.id || 0) - (b.id || 0);
+            });
+            
+            // Создаем элементы для каждой игры
+            for (var i = 0; i < games.length; i++) {
+                var game = games[i];
+                
+                var gameElement = document.createElement('div');
+                gameElement.className = 'game-item';
+                
+                var robloxUrl = 'robloxmobile://Game/PlaceLauncher.ashx?request=RequestGame&placeId=' + (game.placeId || game.id);
+                
+                gameElement.innerHTML = 
+                    '<div class="game-id">ID: ' + (game.id || 'N/A') + '</div>' +
+                    '<div class="game-title">Название: ' + (game.title || 'Не указано') + '</div>' +
+                    (game.description ? '<div style="color: #666; font-size: 12px; margin: 5px 0;">' + game.description + '</div>' : '') +
+                    '<div style="text-align: center; margin-top: 8px;">' +
+                    '<a href="' + robloxUrl + '" class="game-button" onclick="handleGameLaunch(event, ' + (game.placeId || game.id) + ')">Запустить игру</a>' +
+                    '</div>';
+                
+                gamesList.appendChild(gameElement);
             }
-        });
+        }
 
-        document.getElementById('customUniverseId').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchCustomGame();
+        // Функция обработки запуска игры
+        function handleGameLaunch(event, gameId) {
+            if (event) {
+                event.preventDefault();
             }
-        });
+            
+            var robloxUrl = 'robloxmobile://Game/PlaceLauncher.ashx?request=RequestGame&placeId=' + gameId;
+            
+            // Пытаемся открыть в приложении
+            window.location.href = robloxUrl;
+            
+            // Fallback на браузер через 2 секунды
+            setTimeout(function() {
+                var webUrl = 'https://www.roblox.com/games/' + gameId + '/';
+                if (confirm('Не удалось открыть приложение. Открыть в браузере?')) {
+                    window.open(webUrl, '_blank');
+                }
+            }, 2000);
+        }
 
-        // Загружаем популярные игры при старте
-        document.addEventListener('DOMContentLoaded', loadPopularGames);
+        // Загружаем игры при загрузке страницы
+        window.onload = function() {
+            loadGames();
+        };
     </script>
 </body>
 </html>
